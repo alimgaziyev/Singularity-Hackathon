@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -33,9 +34,10 @@ public class BookingController {
     }
 
     @PostMapping("/booking-room")
-    public ResponseEntity<?> bookingRoom(@RequestBody BookingRequest bookingRequest) {
-        System.out.println(bookingRequest);
-        return ResponseEntity.ok("");
+    public ResponseEntity<?> bookingRoom(@RequestBody BookingRequest bookingRequest, HttpServletRequest request) {
+        String jwtToken = request.getHeader("Authorization").replace("Bearer ", "");
+        ResponseOutputBody response = bookingService.createBooking(bookingRequest, jwtToken);
+        return response.getStatusCode() != Response.Status.OK ? ResponseEntity.badRequest().body(response) : ResponseEntity.ok(response);
     }
 
 
