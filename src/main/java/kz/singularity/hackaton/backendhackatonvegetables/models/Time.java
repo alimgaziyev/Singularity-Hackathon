@@ -22,8 +22,15 @@ public class Time {
     @Column(length = 20)
     private ETime time;
 
+    @Override
+    public String toString() {
+        return "Time{" +
+                "id=" + id +
+                ", time=" + time +
+                '}';
+    }
 
-    //    @ElementCollection(targetClass = ETime.class)
+//    @ElementCollection(targetClass = ETime.class)
 //    @CollectionTable(
 //            name = "booked_time",
 //            joinColumns = @JoinColumn(name = "time_id")

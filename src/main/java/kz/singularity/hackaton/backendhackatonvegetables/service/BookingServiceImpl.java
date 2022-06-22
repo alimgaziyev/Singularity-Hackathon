@@ -36,11 +36,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public ResponseOutputBody getFreeTimeOnDayAndRoom(GetFreeTimeRequest getFreeTimeRequest) {
-        System.out.println(getFreeTimeRequest.getRoom());
-        System.out.println(getFreeTimeRequest.getWeekday());
-        Room room = roomRepository.findByRoom(ERoom.valueOf(getFreeTimeRequest.getRoom()));
-        System.out.println(1);
-        System.out.println(room);
+        Room room = roomRepository.findByRoom(ERoom.valueOf(getFreeTimeRequest.getRoom().toUpperCase()));
         if (room == null) {
             return new ResponseOutputBody(
                     ConstantMessages.BAD_CREDENTIALS,
@@ -49,9 +45,7 @@ public class BookingServiceImpl implements BookingService {
                     null
             );
         }
-        Week week = weekDayRepository.findByWeekDay(EWeek.valueOf(getFreeTimeRequest.getWeekday()));
-        System.out.println(1);
-        System.out.println(week);
+        Week week = weekDayRepository.findByWeekDay(EWeek.valueOf(getFreeTimeRequest.getWeekday().toUpperCase()));
         if (week == null) {
             return new ResponseOutputBody(
                     ConstantMessages.BAD_CREDENTIALS,
@@ -61,10 +55,11 @@ public class BookingServiceImpl implements BookingService {
             );
         }
         List<ReservedRoom> reservedRooms = bookingRepository.findAllByRoomAndDay(room, week);
+
         List<String> freeTimes = DayTimes.timeList;
-        System.out.println(freeTimes);
-        System.out.println(reservedRooms);
-        reservedRooms.forEach(x -> freeTimes.remove(x.getTime().toString()));
+
+        reservedRooms.forEach(x -> freeTimes.remove(x.getTime().getTime().time));
+
         return new ResponseOutputBody(
                 ConstantMessages.SUCCESS,
                 timestamp,

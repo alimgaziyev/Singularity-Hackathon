@@ -32,4 +32,14 @@ public class ReservedRoom {
     @JoinColumn(name = "room_id")
     private Room room;
 
+    @Override
+    public String toString() {
+        return "ReservedRoom{" +
+                "id=" + id +
+                ", user=" + user +
+                ", day=" + day +
+                ", time=" + time +
+                ", room=" + room +
+                '}';
+    }
 }
