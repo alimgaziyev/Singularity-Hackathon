@@ -26,4 +26,6 @@ public enum ERoom {
     public boolean isPermission() {
         return permission;
     }
+
+
 }

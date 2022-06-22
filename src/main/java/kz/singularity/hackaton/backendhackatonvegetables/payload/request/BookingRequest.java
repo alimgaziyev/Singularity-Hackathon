@@ -1,5 +1,6 @@
 package kz.singularity.hackaton.backendhackatonvegetables.payload.request;
 
+import kz.singularity.hackaton.backendhackatonvegetables.models.ERoom;
 import kz.singularity.hackaton.backendhackatonvegetables.models.ETime;
 import kz.singularity.hackaton.backendhackatonvegetables.models.EWeek;
 import lombok.Setter;
@@ -10,7 +11,7 @@ import java.util.List;
 @Setter
 public class BookingRequest {
     @NotBlank
-    private Integer roomId;
+    private ERoom room;
     @NotBlank
     private EWeek weekDay;
     @NotBlank

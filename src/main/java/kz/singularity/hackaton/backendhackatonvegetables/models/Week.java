@@ -19,10 +19,15 @@ public class Week {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     private EWeek weekDay;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(  name = "day_books",
-            joinColumns = @JoinColumn(name = "week_id"),
-            inverseJoinColumns = @JoinColumn(name = "time_id"))
-    private Set<Time> bookedTime = new HashSet<>();
+
+    @Override
+    public String toString() {
+        return "Week{" +
+                "id=" + id +
+                ", weekDay=" + weekDay +
+                '}';
+    }
 }

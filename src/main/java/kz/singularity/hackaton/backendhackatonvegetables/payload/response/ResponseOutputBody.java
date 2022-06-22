@@ -1,10 +1,12 @@
 package kz.singularity.hackaton.backendhackatonvegetables.payload.response;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.ws.rs.core.Response.Status;
 
-@Data
+@Getter
+@Setter
 public class ResponseOutputBody {
     private String message;
     private String timestamp;

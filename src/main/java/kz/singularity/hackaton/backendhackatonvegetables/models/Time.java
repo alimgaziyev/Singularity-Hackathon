@@ -18,11 +18,16 @@ public class Time {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ElementCollection(targetClass = ETime.class)
-    @CollectionTable(
-            name = "booked_time",
-            joinColumns = @JoinColumn(name = "time_id")
-    )
-    @Column(name = "etime_id")
-    Set<ETime> bookedTimes = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private ETime time;
+
+
+    //    @ElementCollection(targetClass = ETime.class)
+//    @CollectionTable(
+//            name = "booked_time",
+//            joinColumns = @JoinColumn(name = "time_id")
+//    )
+//    @Column(name = "etime_id")
+//    Set<ETime> bookedTimes = new HashSet<>();
 }
