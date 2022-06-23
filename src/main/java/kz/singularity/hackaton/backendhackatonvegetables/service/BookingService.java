@@ -16,5 +16,5 @@ public interface BookingService {
 
     ResponseOutputBody getAllDayActivity(String room, String day);
 
-    List<ReservedRoom> getMyReservation(String token);
+    ResponseOutputBody getMyReservation(String token);
 }

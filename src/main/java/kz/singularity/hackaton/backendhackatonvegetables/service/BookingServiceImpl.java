@@ -16,9 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -155,16 +153,29 @@ public class BookingServiceImpl implements BookingService {
         Week dayActivity = weekDayRepository.findByWeekDay(EWeek.valueOf(day.toUpperCase()));
         List<ReservedRoom> reservedRooms = bookingRepository.findAllByRoomAndDay(roomActivity, dayActivity);
 
-        AllDayActivity listActivity = new AllDayActivity();
-        List<AllDayActivity> listOfActivity = listActivity.getAllDayActivityList();
+        Map<String, AllDayActivity> listOfActivity = new LinkedHashMap<>();
+
+        DayTimes dayTimes = new DayTimes();
+        List<String> freeTimes = dayTimes.getTimeList();
+
+        for (String time : freeTimes) {
+            AllDayActivity activity = new AllDayActivity();
+
+            activity.setMeetingDescription(null);
+            activity.setFirstName(null);
+            activity.setLastName(null);
+            listOfActivity.put(time, activity);
+        }
+
 
         for (ReservedRoom reservedRoom : reservedRooms) {
+            String [] fullName = reservedRoom.getUser().getUsername().split("\\.");
             AllDayActivity activity = new AllDayActivity();
-            activity.setTime(reservedRoom.getTime().getTime().time);
             activity.setMeetingDescription(reservedRoom.getActivityDescription());
             activity.setReserved(true);
-            activity.setUsername(reservedRoom.getUser().getUsername());
-            listOfActivity.add(activity);
+            activity.setFirstName(fullName[0]);
+            activity.setLastName(fullName[1]);
+            listOfActivity.replace(reservedRoom.getTime().getTime().time, activity);
         }
 
 
@@ -177,25 +188,31 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<ReservedRoom> getMyReservation(String token) {
+    public ResponseOutputBody getMyReservation(String token) {
         String username = jwtUtils.getUserNameFromJwtToken(token);
-        System.out.println(username);
 
         User user = userRepository.findByUsername(username).get();
-        System.out.println(user.getUsername());
         List<ReservedRoom> reservedRooms = bookingRepository.findAllByUser(user);
-//        System.out.println(1);
-        System.out.println(reservedRooms == null);
-        System.out.println(reservedRooms);
-//        System.out.println(11);
-//        List<MyReservationResponse> reservations = new ArrayList<>();
-//        for (ReservedRoom reservedRoom : reservedRooms) {
-//            MyReservationResponse reservation = new MyReservationResponse();
-//            System.out.println(reservedRoom.getDay() + " " + reservedRoom.getTime() + " " + reservedRoom.getRoom());
-//            reservation.setDay(reservedRoom.getDay());
-//            reservation.setTime(reservedRoom.getTime());
-//            reservation.setRoom(reservedRoom.getRoom());
-//        }
-        return reservedRooms;
+        List<MyReservationResponse> myReservations = new ArrayList<>();
+        String[] fullName = user.getUsername().split("\\.");
+        for (ReservedRoom reservedRoom : reservedRooms) {
+            String[] time_H_M = reservedRoom.getTime().getTime().name().split("_");
+
+
+            MyReservationResponse myReservation = new MyReservationResponse();
+            myReservation.setDay(reservedRoom.getDay().getWeekDay().name());
+            myReservation.setTime(time_H_M[1] + ":" + time_H_M[2]);
+            myReservation.setRoom(reservedRoom.getRoom().getRoom().name());
+            myReservation.setLastName(fullName[1]);
+            myReservation.setFirstName(fullName[0]);
+            myReservations.add(myReservation);
+        }
+
+        return new ResponseOutputBody(
+                ConstantMessages.SUCCESS,
+                timestamp,
+                Response.Status.OK,
+                myReservations
+        );
     }
 }

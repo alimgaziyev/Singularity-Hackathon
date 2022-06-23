@@ -9,7 +9,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public class MyReservationResponse {
-    private Week day;
-    private Time time;
-    private Room room;
+    private String day;
+    private String time;
+    private String room;
+    private String firstName;
+    private String lastName;
 }

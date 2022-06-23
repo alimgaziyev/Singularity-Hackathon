@@ -50,10 +50,8 @@ public class BookingController {
     @GetMapping("/show-my-reservation")
     public ResponseEntity<?> getMyReservation(HttpServletRequest request) {
         String jwtToken = request.getHeader("Authorization").replace("Bearer ", "");
-        System.out.println(12);
-
-        List<ReservedRoom> response = bookingService.getMyReservation(jwtToken);
-        return ResponseEntity.ok().body(response);
+        ResponseOutputBody response = bookingService.getMyReservation(jwtToken);
+        return response.getStatusCode() != Response.Status.OK ? ResponseEntity.badRequest().body(response) : ResponseEntity.ok(response);
     }
 
     @GetMapping("/all")

@@ -13,37 +13,17 @@ import java.util.List;
 @Setter
 public class AllDayActivity {
     private String meetingDescription;
-    private String time;
     private boolean reserved;
-    private String username;
+    private String firstName;
+    private String lastName;
 
     @Override
     public String toString() {
         return "AllDayActivity{" +
                 "meetingDescription='" + meetingDescription + '\'' +
-                ", time='" + time + '\'' +
                 ", reserved=" + reserved +
-                ", username=" + username +
-                ", allDayActivityList=" + allDayActivityList +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
                 '}';
     }
-
-    private List<AllDayActivity> allDayActivityList = new ArrayList<>();
-
-    public AllDayActivity() {
-        DayTimes dayTimes = new DayTimes();
-        List<String> freeTimes = dayTimes.getTimeList();
-
-        for (String time : freeTimes) {
-            AllDayActivity activity = new AllDayActivity();
-
-            activity.setTime(time);
-            activity.setMeetingDescription(null);
-            activity.setReserved(false);
-            activity.setUsername(null);
-            allDayActivityList.add(activity);
-        }
-
-    }
-
 }
