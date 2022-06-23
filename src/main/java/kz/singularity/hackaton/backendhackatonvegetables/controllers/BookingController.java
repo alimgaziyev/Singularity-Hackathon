@@ -34,6 +34,7 @@ public class BookingController {
     }
 
     @PostMapping("/booking-room")
+    @PreAuthorize("hasRole('STUDENT') or hasRole('ADMIN')")
     public ResponseEntity<?> bookingRoom(@RequestBody BookingRequest bookingRequest, HttpServletRequest request) {
         String jwtToken = request.getHeader("Authorization").replace("Bearer ", "");
         ResponseOutputBody response = bookingService.createBooking(bookingRequest, jwtToken);
@@ -43,6 +44,14 @@ public class BookingController {
     @GetMapping("/all-day-activity")
     public ResponseEntity<?> getAllDayActivity(@RequestParam("room") String room, @RequestParam("weekday") String weekday) {
         ResponseOutputBody response = bookingService.getAllDayActivity(room, weekday);
+        return response.getStatusCode() != Response.Status.OK ? ResponseEntity.badRequest().body(response) : ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/show-my-reservation")
+    @PreAuthorize("hasRole('STUDENT') or hasRole('ADMIN')")
+    public ResponseEntity<?> getMyReservation(HttpServletRequest request) {
+        String jwtToken = request.getHeader("Authorization").replace("Bearer ", "");
+        ResponseOutputBody response = bookingService.getMyReservation(jwtToken);
         return response.getStatusCode() != Response.Status.OK ? ResponseEntity.badRequest().body(response) : ResponseEntity.ok(response);
     }
 

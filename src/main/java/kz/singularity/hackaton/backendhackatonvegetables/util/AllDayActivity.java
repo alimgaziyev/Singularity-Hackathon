@@ -1,6 +1,7 @@
 package kz.singularity.hackaton.backendhackatonvegetables.util;
 
 import kz.singularity.hackaton.backendhackatonvegetables.models.ETime;
+import kz.singularity.hackaton.backendhackatonvegetables.models.User;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +15,7 @@ public class AllDayActivity {
     private String meetingDescription;
     private String time;
     private boolean reserved;
+    private String username;
 
     @Override
     public String toString() {
@@ -21,10 +23,13 @@ public class AllDayActivity {
                 "meetingDescription='" + meetingDescription + '\'' +
                 ", time='" + time + '\'' +
                 ", reserved=" + reserved +
+                ", username=" + username +
+                ", allDayActivityList=" + allDayActivityList +
                 '}';
     }
 
     private List<AllDayActivity> allDayActivityList = new ArrayList<>();
+
     public AllDayActivity() {
         DayTimes dayTimes = new DayTimes();
         List<String> freeTimes = dayTimes.getTimeList();
@@ -35,6 +40,7 @@ public class AllDayActivity {
             activity.setTime(time);
             activity.setMeetingDescription(null);
             activity.setReserved(false);
+            activity.setUsername(null);
             allDayActivityList.add(activity);
         }
 

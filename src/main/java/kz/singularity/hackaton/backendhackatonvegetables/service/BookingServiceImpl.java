@@ -3,6 +3,7 @@ package kz.singularity.hackaton.backendhackatonvegetables.service;
 import kz.singularity.hackaton.backendhackatonvegetables.models.*;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.BookingRequest;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.GetFreeTimeRequest;
+import kz.singularity.hackaton.backendhackatonvegetables.payload.response.MyReservationResponse;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.response.ResponseOutputBody;
 import kz.singularity.hackaton.backendhackatonvegetables.repository.*;
 import kz.singularity.hackaton.backendhackatonvegetables.security.jwt.JwtUtils;
@@ -162,6 +163,7 @@ public class BookingServiceImpl implements BookingService {
             activity.setTime(reservedRoom.getTime().getTime().time);
             activity.setMeetingDescription(reservedRoom.getActivityDescription());
             activity.setReserved(true);
+            activity.setUsername(reservedRoom.getUser().getUsername());
             listOfActivity.add(activity);
         }
 
@@ -171,6 +173,27 @@ public class BookingServiceImpl implements BookingService {
                 timestamp,
                 Response.Status.OK,
                 listOfActivity
+        );
+    }
+
+    @Override
+    public ResponseOutputBody getMyReservation(String token) {
+        String username = jwtUtils.getUserNameFromJwtToken(token);
+        User user = userRepository.findByUsername(username).get();
+        List<ReservedRoom> reservedRooms = bookingRepository.findAllByUser(user);
+
+        List<MyReservationResponse> reservations = new ArrayList<>();
+        for (ReservedRoom reservedRoom : reservedRooms) {
+            MyReservationResponse reservation = new MyReservationResponse();
+            reservation.setDay(reservedRoom.getDay());
+            reservation.setTime(reservedRoom.getTime());
+            reservation.setRoom(reservedRoom.getRoom());
+        }
+        return new ResponseOutputBody(
+                ConstantMessages.SUCCESS,
+                timestamp,
+                Response.Status.OK,
+                reservations
         );
     }
 }

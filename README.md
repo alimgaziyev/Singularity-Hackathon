@@ -1,8 +1,9 @@
-## Hackathon - Entering to rooms  
+## Hackathon - Entering to rooms
 
 <hr>
 
 ### Commits:
+
 #### Commit types
 
 | **Emoji** | **Commit type** |
