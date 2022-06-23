@@ -1,9 +1,7 @@
 package kz.singularity.hackaton.backendhackatonvegetables.models;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 
@@ -11,6 +9,8 @@ import javax.persistence.*;
 @Table(name = "to_permit")
 @NoArgsConstructor
 @Getter @Setter
+@Builder
+@AllArgsConstructor
 public class QueryToPermit {
     @Id
     @GeneratedValue

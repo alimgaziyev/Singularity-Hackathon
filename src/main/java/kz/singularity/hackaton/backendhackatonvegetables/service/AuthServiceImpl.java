@@ -111,6 +111,7 @@ public class AuthServiceImpl implements AuthService {
         Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName(ERole.ROLE_STUDENT)
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+
         roles.add(userRole);
 
         user.setRoles(roles);

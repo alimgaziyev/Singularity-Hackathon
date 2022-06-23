@@ -4,11 +4,14 @@ import kz.singularity.hackaton.backendhackatonvegetables.email.EmailService;
 import kz.singularity.hackaton.backendhackatonvegetables.models.*;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.BookingRequest;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.GetFreeTimeRequest;
+import kz.singularity.hackaton.backendhackatonvegetables.payload.request.PermittedRequest;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.response.ResponseOutputBody;
 import kz.singularity.hackaton.backendhackatonvegetables.repository.*;
 import kz.singularity.hackaton.backendhackatonvegetables.util.ConstantMessages;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,20 +21,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-@Setter
+@RequiredArgsConstructor
 public class PermitServiceImpl implements PermitService {
-    private UserRepository userRepository;
-    private RoleRepository roleRepository;
-    private PermitRepository permitRepository;
-    private BookingRepository bookingRepository;
-    private RoomRepository roomRepository;
-    private WeekDayRepository weekDayRepository;
-    private TimeRepository timeRepository;
-    private EmailService emailService;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PermitRepository permitRepository;
+    private final BookingRepository bookingRepository;
+    private final RoomRepository roomRepository;
+    private final WeekDayRepository weekDayRepository;
+    private final TimeRepository timeRepository;
+    private final EmailService emailService;
 
 
-    private final String timestamp;
-
+    private String timestamp;
     {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -45,10 +47,10 @@ public class PermitServiceImpl implements PermitService {
     }
 
     @Override
-    public ResponseOutputBody doPermission(String permission) {
+    public ResponseOutputBody doPermission(PermittedRequest permission) {
         QueryToPermit queryToPermit = permitRepository.getFirstById();
-        if (permission.equals("permitted")) {
-            permitRepository.delete(queryToPermit);
+        permitRepository.delete(queryToPermit);
+        if (permission.getDecision().equals("permitted")) {
             return createBookingByPermission(queryToPermit);
         } else {
             return notBooked(queryToPermit);
@@ -63,12 +65,21 @@ public class PermitServiceImpl implements PermitService {
             emailService.sendSimpleMessage(
                     x.getEmail(),
                     "to permit",
-                    String.format("student name: %s, requests to permit #%s room, on %s. Reason - %s",
+                    String.format("student name: %s; email: %s, requests to permit #%s room, on %s at %s. Reason - %s",
+                            user.getUsername(),
                             user.getEmail(),
                             bookingRequest.getRoom(),
                             bookingRequest.getWeekDay(),
+                            bookingRequest.getTimeList(),
                             bookingRequest.getMeetingName()));
         });
+        bookingRequest.getTimeList().forEach(time->
+            permitRepository.save(QueryToPermit.builder()
+                    .username(user.getUsername())
+                    .room(bookingRequest.getRoom())
+                    .weekDay(bookingRequest.getWeekDay()).time(time)
+                    .meetingName(bookingRequest.getMeetingName())
+                    .build()));
     }
 
     @Transactional

@@ -29,6 +29,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final PermitService permitService;
     private final EmailService emailService;
+
     private final String timestamp;
 
     {
@@ -132,12 +133,17 @@ public class BookingServiceImpl implements BookingService {
             );
         }
 
+        List<Time> reservedTimes = new ArrayList<>();
+        bookingRepository.findAllByRoomAndDay(room, day)
+                .forEach(x -> reservedTimes.add(x.getTime()));
 
         for (String s : bookingRequest.getTimeList()) {
-            System.out.println(s);
-            String[] time_H_M = s.split(":");
 
-            Time time = timeRepository.findByTime(ETime.valueOf("T_" + time_H_M[0] + "_" + time_H_M[1]));
+            String[] time_H_M = s.split(":");
+            Time time = timeRepository.findByTime(
+                    ETime.valueOf("T_" + time_H_M[0] + "_" + time_H_M[1]));
+
+            if (reservedTimes.contains(time)) continue;
 
             ReservedRoom reservedRoom = new ReservedRoom();
             reservedRoom.setRoom(room);

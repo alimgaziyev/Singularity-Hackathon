@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kz.singularity.hackaton.backendhackatonvegetables.models.QueryToPermit;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.BookingRequest;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.GetFreeTimeRequest;
+import kz.singularity.hackaton.backendhackatonvegetables.payload.request.PermittedRequest;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.response.ResponseOutputBody;
 import kz.singularity.hackaton.backendhackatonvegetables.repository.PermitRepository;
 import kz.singularity.hackaton.backendhackatonvegetables.service.BookingService;
@@ -17,7 +18,7 @@ import javax.ws.rs.core.Response;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@SecurityRequirement(name = "admins")
+@SecurityRequirement(name = "bearer")
 @RequestMapping("/api/permit")
 @RequiredArgsConstructor
 public class AdminController {
@@ -31,7 +32,7 @@ public class AdminController {
     }
 
     @PostMapping("/permission")
-    public ResponseEntity<?> bookingRoomByPermission(@RequestBody String permission) {
+    public ResponseEntity<?> bookingRoomByPermission(@RequestBody PermittedRequest permission) {
         ResponseOutputBody response = permitService.doPermission(permission);
         return response.getStatusCode() != Response.Status.OK ? ResponseEntity.badRequest().body(response) : ResponseEntity.ok(response);
     }
