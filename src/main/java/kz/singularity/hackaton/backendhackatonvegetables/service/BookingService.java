@@ -10,4 +10,6 @@ public interface BookingService {
     ResponseOutputBody getFreeTimeOnDayAndRoom(GetFreeTimeRequest getFreeTimeRequest);
 
     ResponseOutputBody createBooking(BookingRequest bookingRequest, String token);
+
+    ResponseOutputBody getAllDayActivity(String room, String day);
 }

@@ -40,6 +40,11 @@ public class BookingController {
         return response.getStatusCode() != Response.Status.OK ? ResponseEntity.badRequest().body(response) : ResponseEntity.ok(response);
     }
 
+    @GetMapping("/all-day-activity")
+    public ResponseEntity<?> getAllDayActivity(@RequestParam("room") String room, @RequestParam("weekday") String weekday) {
+        ResponseOutputBody response = bookingService.getAllDayActivity(room, weekday);
+        return response.getStatusCode() != Response.Status.OK ? ResponseEntity.badRequest().body(response) : ResponseEntity.ok(response);
+    }
 
     @GetMapping("/all")
     public String allAccess() {

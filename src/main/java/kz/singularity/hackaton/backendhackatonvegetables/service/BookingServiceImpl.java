@@ -6,6 +6,7 @@ import kz.singularity.hackaton.backendhackatonvegetables.payload.request.GetFree
 import kz.singularity.hackaton.backendhackatonvegetables.payload.response.ResponseOutputBody;
 import kz.singularity.hackaton.backendhackatonvegetables.repository.*;
 import kz.singularity.hackaton.backendhackatonvegetables.security.jwt.JwtUtils;
+import kz.singularity.hackaton.backendhackatonvegetables.util.AllDayActivity;
 import kz.singularity.hackaton.backendhackatonvegetables.util.ConstantMessages;
 import kz.singularity.hackaton.backendhackatonvegetables.util.DayTimes;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -118,6 +119,7 @@ public class BookingServiceImpl implements BookingService {
         for (String s : bookingRequest.getTimeList()) {
             System.out.println(s);
             String[] time_H_M = s.split(":");
+
             Time time = timeRepository.findByTime(ETime.valueOf("T_" + time_H_M[0] + "_" + time_H_M[1]));
 
             ReservedRoom reservedRoom = new ReservedRoom();
@@ -125,6 +127,7 @@ public class BookingServiceImpl implements BookingService {
             reservedRoom.setDay(day);
             reservedRoom.setTime(time);
             reservedRoom.setUser(user);
+            reservedRoom.setActivityDescription(bookingRequest.getMeetingName());
             bookingRepository.save(reservedRoom);
         }
         return new ResponseOutputBody(
@@ -132,6 +135,32 @@ public class BookingServiceImpl implements BookingService {
                 timestamp,
                 Response.Status.OK,
                 null
+        );
+    }
+
+    @Override
+    public ResponseOutputBody getAllDayActivity(String room, String day) {
+        Room roomActivity = roomRepository.findByRoom(ERoom.valueOf(room.toUpperCase()));
+        Week dayActivity = weekDayRepository.findByWeekDay(EWeek.valueOf(day.toUpperCase()));
+        List<ReservedRoom> reservedRooms = bookingRepository.findAllByRoomAndDay(roomActivity, dayActivity);
+
+        AllDayActivity listActivity = new AllDayActivity();
+        List<AllDayActivity> listOfActivity = listActivity.getAllDayActivityList();
+
+        for (ReservedRoom reservedRoom : reservedRooms) {
+            AllDayActivity activity = new AllDayActivity();
+            activity.setTime(reservedRoom.getTime().getTime().time);
+            activity.setMeetingDescription(reservedRoom.getActivityDescription());
+            activity.setReserved(true);
+            listOfActivity.add(activity);
+        }
+
+
+        return new ResponseOutputBody(
+                ConstantMessages.SUCCESS,
+                timestamp,
+                Response.Status.OK,
+                listOfActivity
         );
     }
 }

@@ -33,6 +33,9 @@ public class ReservedRoom {
     @JoinColumn(name = "room_id")
     private Room room;
 
+    @Column(name = "activity_description", nullable = false)
+    private String activityDescription;
+
     @Override
     public String toString() {
         return "ReservedRoom{" +
@@ -41,6 +44,7 @@ public class ReservedRoom {
                 ", day=" + day +
                 ", time=" + time +
                 ", room=" + room +
+                ", activityDescription='" + activityDescription + '\'' +
                 '}';
     }
 }
