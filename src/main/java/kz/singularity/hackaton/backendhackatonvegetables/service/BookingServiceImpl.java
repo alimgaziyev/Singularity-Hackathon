@@ -179,9 +179,14 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public ResponseOutputBody getMyReservation(String token) {
         String username = jwtUtils.getUserNameFromJwtToken(token);
-        User user = userRepository.findByUsername(username).get();
-        List<ReservedRoom> reservedRooms = bookingRepository.findAllByUser(user);
+        System.out.println(username);
 
+        User user = userRepository.findByUsername(username).get();
+        System.out.println(user.getUsername());
+        List<ReservedRoom> reservedRooms = bookingRepository.findAll();
+        System.out.println(1);
+        reservedRooms.forEach(System.out::println);
+        System.out.println(11);
         List<MyReservationResponse> reservations = new ArrayList<>();
         for (ReservedRoom reservedRoom : reservedRooms) {
             MyReservationResponse reservation = new MyReservationResponse();
