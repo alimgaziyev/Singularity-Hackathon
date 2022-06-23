@@ -27,6 +27,7 @@ public class BookingServiceImpl implements BookingService {
     private final TimeRepository timeRepository;
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
+    private final PermitService permitService;
     private final String timestamp;
 
     {
@@ -37,13 +38,14 @@ public class BookingServiceImpl implements BookingService {
 
     public BookingServiceImpl(BookingRepository bookingRepository, RoomRepository roomRepository,
                               WeekDayRepository weekDayRepository, TimeRepository timeRepository,
-                              JwtUtils jwtUtils, UserRepository userRepository) {
+                              JwtUtils jwtUtils, UserRepository userRepository, PermitService permitService) {
         this.bookingRepository = bookingRepository;
         this.roomRepository = roomRepository;
         this.weekDayRepository = weekDayRepository;
         this.timeRepository = timeRepository;
         this.jwtUtils = jwtUtils;
         this.userRepository = userRepository;
+        this.permitService = permitService;
     }
 
     public ResponseOutputBody getFreeTimeOnDayAndRoom(GetFreeTimeRequest getFreeTimeRequest) {
@@ -85,9 +87,18 @@ public class BookingServiceImpl implements BookingService {
     public ResponseOutputBody createBooking(BookingRequest bookingRequest, String token) {
         String username = jwtUtils.getUserNameFromJwtToken(token);
         User user = userRepository.findByUsername(username).get();
+        Room room = roomRepository.findByRoom(ERoom.valueOf(bookingRequest.getRoom().toUpperCase()));
 
-        if (Objects.equals(bookingRequest.getRoom(), ERoom.R303.name()) ||
-                Objects.equals(bookingRequest.getRoom(), ERoom.R403.name())) {
+        if (room.getIsPermissionNeed()) {
+            permitService.sendToPermitForRoomOnWeekDay(bookingRequest, user);
+            return new ResponseOutputBody(
+                    ConstantMessages.ROOM_NEEDS_PERMISSION + ConstantMessages.GET_PERMISSION,
+                    timestamp,
+                    Response.Status.OK,
+                    null);
+        }
+
+        if (Objects.equals(bookingRequest.getRoom(), ERoom.R403.name())) {
             return new ResponseOutputBody(
                     ConstantMessages.BAD_CREDENTIALS,
                     timestamp,
@@ -96,7 +107,6 @@ public class BookingServiceImpl implements BookingService {
             );
         }
 
-        Room room = roomRepository.findByRoom(ERoom.valueOf(bookingRequest.getRoom().toUpperCase()));
         if (room == null) {
             return new ResponseOutputBody(
                     ConstantMessages.BAD_CREDENTIALS,

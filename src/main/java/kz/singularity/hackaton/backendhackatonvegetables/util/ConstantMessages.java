@@ -31,6 +31,9 @@ public class ConstantMessages {
     // general messages
     public final static String INCORRECT_BODY_REQUEST = "Incorrect body request";
     public final static String SUCCESS = "success";
+    public final static String GET_PERMISSION = "Send request for permission to Admin, please wait. We send answer to your email\n";
+
+    public final static String ROOM_NEEDS_PERMISSION = "This Room needs permission of admin\n";
 
     public final static String BAD_CREDENTIALS = "Wrong response";
 }
