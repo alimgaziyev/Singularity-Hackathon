@@ -1,5 +1,6 @@
 package kz.singularity.hackaton.backendhackatonvegetables.service;
 
+import kz.singularity.hackaton.backendhackatonvegetables.email.EmailService;
 import kz.singularity.hackaton.backendhackatonvegetables.models.*;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.BookingRequest;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.GetFreeTimeRequest;
@@ -27,6 +28,7 @@ public class BookingServiceImpl implements BookingService {
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
     private final PermitService permitService;
+    private final EmailService emailService;
     private final String timestamp;
 
     {
@@ -37,7 +39,8 @@ public class BookingServiceImpl implements BookingService {
 
     public BookingServiceImpl(BookingRepository bookingRepository, RoomRepository roomRepository,
                               WeekDayRepository weekDayRepository, TimeRepository timeRepository,
-                              JwtUtils jwtUtils, UserRepository userRepository, PermitService permitService) {
+                              JwtUtils jwtUtils, UserRepository userRepository,
+                              PermitService permitService, EmailService emailService) {
         this.bookingRepository = bookingRepository;
         this.roomRepository = roomRepository;
         this.weekDayRepository = weekDayRepository;
@@ -45,6 +48,7 @@ public class BookingServiceImpl implements BookingService {
         this.jwtUtils = jwtUtils;
         this.userRepository = userRepository;
         this.permitService = permitService;
+        this.emailService = emailService;
     }
 
     public ResponseOutputBody getFreeTimeOnDayAndRoom(GetFreeTimeRequest getFreeTimeRequest) {
@@ -80,6 +84,10 @@ public class BookingServiceImpl implements BookingService {
                 freeTimes
         );
     }
+
+
+
+
 
     @Transactional
     @Override

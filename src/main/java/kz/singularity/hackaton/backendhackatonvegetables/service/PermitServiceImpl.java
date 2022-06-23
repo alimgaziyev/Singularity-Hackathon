@@ -1,25 +1,60 @@
 package kz.singularity.hackaton.backendhackatonvegetables.service;
 
 import kz.singularity.hackaton.backendhackatonvegetables.email.EmailService;
-import kz.singularity.hackaton.backendhackatonvegetables.models.ERole;
-import kz.singularity.hackaton.backendhackatonvegetables.models.QueryToPermit;
-import kz.singularity.hackaton.backendhackatonvegetables.models.Role;
-import kz.singularity.hackaton.backendhackatonvegetables.models.User;
+import kz.singularity.hackaton.backendhackatonvegetables.models.*;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.BookingRequest;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.GetFreeTimeRequest;
-import kz.singularity.hackaton.backendhackatonvegetables.repository.RoleRepository;
-import kz.singularity.hackaton.backendhackatonvegetables.repository.UserRepository;
+import kz.singularity.hackaton.backendhackatonvegetables.payload.response.ResponseOutputBody;
+import kz.singularity.hackaton.backendhackatonvegetables.repository.*;
+import kz.singularity.hackaton.backendhackatonvegetables.util.ConstantMessages;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-public class PermitServiceImpl implements PermitService{
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final EmailService emailService;
+@Setter
+public class PermitServiceImpl implements PermitService {
+    private UserRepository userRepository;
+    private RoleRepository roleRepository;
+    private PermitRepository permitRepository;
+    private BookingRepository bookingRepository;
+    private RoomRepository roomRepository;
+    private WeekDayRepository weekDayRepository;
+    private TimeRepository timeRepository;
+    private EmailService emailService;
+
+
+    private final String timestamp;
+
+    {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.now();
+        timestamp = dtf.format(localDateTime);
+    }
+
+    @Override
+    public QueryToPermit getUserToPermit() {
+        QueryToPermit queryToPermit = permitRepository.getFirstById();
+        return queryToPermit;
+    }
+
+    @Override
+    public ResponseOutputBody doPermission(String permission) {
+        QueryToPermit queryToPermit = permitRepository.getFirstById();
+        if (permission.equals("permitted")) {
+            permitRepository.delete(queryToPermit);
+            return createBookingByPermission(queryToPermit);
+        } else {
+            return notBooked(queryToPermit);
+        }
+    }
+
     @Override
     public void sendToPermitForRoomOnWeekDay(BookingRequest bookingRequest, User user) {
         List<User> admins = userRepository.findUsersByRoles(roleRepository.findByName(ERole.ROLE_ADMIN).orElseThrow());
@@ -34,7 +69,56 @@ public class PermitServiceImpl implements PermitService{
                             bookingRequest.getWeekDay(),
                             bookingRequest.getMeetingName()));
         });
+    }
 
-        QueryToPermit queryToPermit = new QueryToPermit();
+    @Transactional
+    public ResponseOutputBody createBookingByPermission(QueryToPermit queryToPermit) {
+        Room room = roomRepository.findByRoom(ERoom.valueOf(queryToPermit.getRoom().toUpperCase()));
+        Week day = weekDayRepository.findByWeekDay(EWeek.valueOf(queryToPermit.getWeekDay().toUpperCase()));
+
+        String[] time_H_M = queryToPermit.getTime().split(":");
+        Time time = timeRepository.findByTime(ETime.valueOf("T_" + time_H_M[0] + "_" + time_H_M[1]));
+        User user = userRepository.findByUsername(queryToPermit.getUsername()).get();
+
+
+        ReservedRoom reservedRoom = new ReservedRoom();
+        reservedRoom.setRoom(room);
+        reservedRoom.setDay(day);
+        reservedRoom.setTime(time);
+        reservedRoom.setUser(user);
+        reservedRoom.setActivityDescription(queryToPermit.getMeetingName());
+        bookingRepository.save(reservedRoom);
+
+        emailService.sendSimpleMessage(user.getEmail(),
+                "Admin permitted",
+                String.format("Request to permit the %s room, on %s, on time - %s",
+                        queryToPermit.getRoom(),
+                        queryToPermit.getWeekDay(),
+                        queryToPermit.getTime())
+        );
+
+        return new ResponseOutputBody(
+                ConstantMessages.SUCCESS,
+                timestamp,
+                Response.Status.OK,
+                null
+        );
+    }
+
+    public ResponseOutputBody notBooked(QueryToPermit queryToPermit) {
+        User user = userRepository.findByUsername(queryToPermit.getUsername()).get();
+        emailService.sendSimpleMessage(user.getEmail(),
+                "Reject",
+                String.format("Request to permit the %s room, on %s, on time - %s",
+                        queryToPermit.getRoom(),
+                        queryToPermit.getWeekDay(),
+                        queryToPermit.getTime())
+        );
+        return new ResponseOutputBody(
+                ConstantMessages.SUCCESS,
+                timestamp,
+                Response.Status.OK,
+                null
+        );
     }
 }

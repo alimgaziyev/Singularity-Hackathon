@@ -19,6 +19,8 @@ public class QueryToPermit {
     private String room;
     @Column(name = "week_day")
     private String weekDay;
-    private String why;
+    private String time;
+    @Column(name = "meeting_name")
+    private String meetingName;
 
 }
