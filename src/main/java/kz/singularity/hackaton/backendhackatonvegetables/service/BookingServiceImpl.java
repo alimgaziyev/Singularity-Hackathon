@@ -66,7 +66,8 @@ public class BookingServiceImpl implements BookingService {
         }
         List<ReservedRoom> reservedRooms = bookingRepository.findAllByRoomAndDay(room, week);
 
-        List<String> freeTimes = DayTimes.timeList;
+        DayTimes dayTimes = new DayTimes();
+        List<String> freeTimes = dayTimes.getTimeList();
 
         reservedRooms.forEach(x -> freeTimes.remove(x.getTime().getTime().time));
 
@@ -116,7 +117,8 @@ public class BookingServiceImpl implements BookingService {
 
         for (String s : bookingRequest.getTimeList()) {
             System.out.println(s);
-            Time time = timeRepository.findByTime(ETime.valueOf(s));
+            String[] time_H_M = s.split(":");
+            Time time = timeRepository.findByTime(ETime.valueOf("T_" + time_H_M[0] + "_" + time_H_M[1]));
 
             ReservedRoom reservedRoom = new ReservedRoom();
             reservedRoom.setRoom(room);
