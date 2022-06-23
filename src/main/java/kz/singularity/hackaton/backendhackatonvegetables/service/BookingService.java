@@ -1,9 +1,12 @@
 package kz.singularity.hackaton.backendhackatonvegetables.service;
 
+import kz.singularity.hackaton.backendhackatonvegetables.models.ReservedRoom;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.BookingRequest;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.GetFreeTimeRequest;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.response.ResponseOutputBody;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface BookingService {
@@ -13,5 +16,5 @@ public interface BookingService {
 
     ResponseOutputBody getAllDayActivity(String room, String day);
 
-    ResponseOutputBody getMyReservation(String token);
+    List<ReservedRoom> getMyReservation(String token);
 }

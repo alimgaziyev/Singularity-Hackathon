@@ -177,28 +177,25 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public ResponseOutputBody getMyReservation(String token) {
+    public List<ReservedRoom> getMyReservation(String token) {
         String username = jwtUtils.getUserNameFromJwtToken(token);
         System.out.println(username);
 
         User user = userRepository.findByUsername(username).get();
         System.out.println(user.getUsername());
-        List<ReservedRoom> reservedRooms = bookingRepository.findAll();
-        System.out.println(1);
-        reservedRooms.forEach(System.out::println);
-        System.out.println(11);
-        List<MyReservationResponse> reservations = new ArrayList<>();
-        for (ReservedRoom reservedRoom : reservedRooms) {
-            MyReservationResponse reservation = new MyReservationResponse();
-            reservation.setDay(reservedRoom.getDay());
-            reservation.setTime(reservedRoom.getTime());
-            reservation.setRoom(reservedRoom.getRoom());
-        }
-        return new ResponseOutputBody(
-                ConstantMessages.SUCCESS,
-                timestamp,
-                Response.Status.OK,
-                reservations
-        );
+        List<ReservedRoom> reservedRooms = bookingRepository.findAllByUser(user);
+//        System.out.println(1);
+        System.out.println(reservedRooms == null);
+        System.out.println(reservedRooms);
+//        System.out.println(11);
+//        List<MyReservationResponse> reservations = new ArrayList<>();
+//        for (ReservedRoom reservedRoom : reservedRooms) {
+//            MyReservationResponse reservation = new MyReservationResponse();
+//            System.out.println(reservedRoom.getDay() + " " + reservedRoom.getTime() + " " + reservedRoom.getRoom());
+//            reservation.setDay(reservedRoom.getDay());
+//            reservation.setTime(reservedRoom.getTime());
+//            reservation.setRoom(reservedRoom.getRoom());
+//        }
+        return reservedRooms;
     }
 }

@@ -2,6 +2,7 @@ package kz.singularity.hackaton.backendhackatonvegetables.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kz.singularity.hackaton.backendhackatonvegetables.models.ETime;
+import kz.singularity.hackaton.backendhackatonvegetables.models.ReservedRoom;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.BookingRequest;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.request.GetFreeTimeRequest;
 import kz.singularity.hackaton.backendhackatonvegetables.payload.response.ResponseOutputBody;
@@ -50,8 +51,9 @@ public class BookingController {
     public ResponseEntity<?> getMyReservation(HttpServletRequest request) {
         String jwtToken = request.getHeader("Authorization").replace("Bearer ", "");
         System.out.println(12);
-        ResponseOutputBody response = bookingService.getMyReservation(jwtToken);
-        return response.getStatusCode() != Response.Status.OK ? ResponseEntity.badRequest().body(response) : ResponseEntity.ok(response);
+
+        List<ReservedRoom> response = bookingService.getMyReservation(jwtToken);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/all")
