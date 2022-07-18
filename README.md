@@ -1,7 +1,17 @@
 ## Hackathon - Entering to rooms
 
+### Functions 
+1) signup / login (JWT)
+2) booking room
+3) get free time
+4) history your reservations
+
+
+
+
+
 <hr>
-### Running:
+Running:
 
     1) Running by jar download Backend-Hackaton-Vegetables.jar and paste command: 
 
